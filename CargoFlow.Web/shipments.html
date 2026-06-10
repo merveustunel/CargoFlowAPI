@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CargoFlow - Shipments</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-lg">
+            <a class="navbar-brand" href="index.html">📦 CargoFlow</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="customers.html">Customers</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="shipments.html">Shipments</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tracking.html">Track Shipment</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <div class="container-lg">
+            <div id="alertContainer"></div>
+
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <h1>Shipments</h1>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#shipmentModal">
+            + Create Shipment
+          </button>
+                </div>
+            </div>
+
+            <!-- Loading Spinner -->
+            <div id="loadingSpinner" class="text-center my-5">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+
+            <!-- Shipments Table -->
+            <div id="shipmentsContent" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">All Shipments</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Tracking Number</th>
+                                    <th>Origin</th>
+                                    <th>Destination</th>
+                                    <th>Weight (kg)</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="shipmentsTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create/Edit Shipment Modal -->
+    <div class="modal fade" id="shipmentModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="shipmentModalTitle">Create Shipment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="shipmentForm">
+                        <input type="hidden" id="shipmentId">
+                        <div class="mb-3">
+                            <label for="trackingNumber" class="form-label">Tracking Number</label>
+                            <input type="text" class="form-control" id="trackingNumber" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="origin" class="form-label">Origin</label>
+                            <input type="text" class="form-control" id="origin" placeholder="City, State" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="destination" class="form-label">Destination</label>
+                            <input type="text" class="form-control" id="destination" placeholder="City, State" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="weight" class="form-label">Weight (kg)</label>
+                            <input type="number" class="form-control" id="weight" step="0.1" min="0" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveShipmentBtn">Save Shipment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Status Modal -->
+    <div class="modal fade" id="statusModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Shipment Status</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="statusShipmentId">
+                    <div class="mb-3">
+                        <label for="statusSelect" class="form-label">New Status</label>
+                        <select class="form-select" id="statusSelect" required>
+              <option value="">-- Select Status --</option>
+              <option value="Created">Created</option>
+              <option value="InWarehouse">In Warehouse</option>
+              <option value="InTransit">In Transit</option>
+              <option value="Delivered">Delivered</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="updateStatusBtn">Update Status</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 CargoFlow API. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        let shipmentModal, statusModal;
+        let currentEditingId = null;
+        let currentStatusShipmentId = null;
+
+        async function loadShipments() {
+            try {
+                const shipments = await apiClient.getShipments();
+                const tbody = document.getElementById('shipmentsTableBody');
+                tbody.innerHTML = '';
+
+                shipments.forEach(shipment => {
+                    const statusBadgeClass = getStatusBadgeClass(shipment.status);
+                    const row = `
+            <tr>
+              <td>${shipment.id}</td>
+              <td><strong>${shipment.trackingNumber}</strong></td>
+              <td>${shipment.origin}</td>
+              <td>${shipment.destination}</td>
+              <td>${shipment.weight}</td>
+              <td><span class="badge ${statusBadgeClass}">${shipment.status}</span></td>
+              <td>${formatDate(shipment.createdDate)}</td>
+              <td>
+                <button class="btn btn-sm btn-info me-2" onclick="openStatusModal(${shipment.id}, '${shipment.status}')">Update Status</button>
+                <button class="btn btn-sm btn-warning me-2" onclick="editShipment(${shipment.id})">Edit</button>
+                <button class="btn btn-sm btn-danger" onclick="deleteShipment(${shipment.id})">Delete</button>
+              </td>
+            </tr>
+          `;
+                    tbody.innerHTML += row;
+                });
+
+                document.getElementById('loadingSpinner').style.display = 'none';
+                document.getElementById('shipmentsContent').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading shipments:', error);
+                showAlert('Error loading shipments. Make sure the API is running.', 'danger');
+                document.getElementById('loadingSpinner').style.display = 'none';
+            }
+        }
+
+        async function editShipment(id) {
+            try {
+                const shipment = await apiClient.getShipment(id);
+                currentEditingId = id;
+
+                document.getElementById('shipmentModalTitle').textContent = 'Edit Shipment';
+                document.getElementById('shipmentId').value = shipment.id;
+                document.getElementById('trackingNumber').value = shipment.trackingNumber;
+                document.getElementById('origin').value = shipment.origin;
+                document.getElementById('destination').value = shipment.destination;
+                document.getElementById('weight').value = shipment.weight;
+
+                shipmentModal.show();
+            } catch (error) {
+                showAlert('Error loading shipment data.', 'danger');
+            }
+        }
+
+        function openStatusModal(id, currentStatus) {
+            currentStatusShipmentId = id;
+            document.getElementById('statusShipmentId').value = id;
+            document.getElementById('statusSelect').value = currentStatus;
+            statusModal.show();
+        }
+
+        async function deleteShipment(id) {
+            if (confirm('Are you sure you want to delete this shipment?')) {
+                try {
+                    await apiClient.deleteShipment(id);
+                    showAlert('Shipment deleted successfully.', 'success');
+                    loadShipments();
+                } catch (error) {
+                    showAlert('Error deleting shipment.', 'danger');
+                }
+            }
+        }
+
+        document.getElementById('shipmentForm').addEventListener('submit', async(e) => {
+            e.preventDefault();
+
+            const data = {
+                trackingNumber: document.getElementById('trackingNumber').value,
+                origin: document.getElementById('origin').value,
+                destination: document.getElementById('destination').value,
+                weight: parseFloat(document.getElementById('weight').value)
+            };
+
+            try {
+                if (currentEditingId) {
+                    await apiClient.updateShipment(currentEditingId, data);
+                    showAlert('Shipment updated successfully.', 'success');
+                    currentEditingId = null;
+                } else {
+                    await apiClient.createShipment(data);
+                    showAlert('Shipment created successfully.', 'success');
+                }
+
+                shipmentModal.hide();
+                loadShipments();
+            } catch (error) {
+                showAlert('Error saving shipment.', 'danger');
+            }
+        });
+
+        document.getElementById('saveShipmentBtn').addEventListener('click', () => {
+            document.getElementById('shipmentForm').dispatchEvent(new Event('submit'));
+        });
+
+        document.getElementById('updateStatusBtn').addEventListener('click', async() => {
+            const newStatus = document.getElementById('statusSelect').value;
+
+            if (!newStatus) {
+                showAlert('Please select a status.', 'warning');
+                return;
+            }
+
+            try {
+                await apiClient.updateShipmentStatus(currentStatusShipmentId, newStatus);
+                showAlert('Shipment status updated successfully.', 'success');
+                statusModal.hide();
+                loadShipments();
+            } catch (error) {
+                showAlert('Error updating shipment status.', 'danger');
+            }
+        });
+
+        // Reset form when modal closes
+        document.getElementById('shipmentModal').addEventListener('hidden.bs.modal', () => {
+            document.getElementById('shipmentForm').reset();
+            document.getElementById('shipmentModalTitle').textContent = 'Create Shipment';
+            currentEditingId = null;
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            shipmentModal = new bootstrap.Modal(document.getElementById('shipmentModal'));
+            statusModal = new bootstrap.Modal(document.getElementById('statusModal'));
+            loadShipments();
+        });
+    </script>
+</body>
+
+</html>

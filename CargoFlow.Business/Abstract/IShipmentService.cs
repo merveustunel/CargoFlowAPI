@@ -11,9 +11,13 @@ namespace CargoFlow.Business.Abstract
 
         Task<ShipmentDto?> GetByIdAsync(int id);
 
+        Task<ShipmentTrackingDto?> GetByTrackingNumberAsync(string trackingNumber);
+
         Task<ShipmentDto> CreateAsync(CreateShipmentDto createShipmentDto);
 
         Task<ShipmentDto> UpdateAsync(int id, UpdateShipmentDto updateShipmentDto);
+
+        Task<ShipmentDto> UpdateStatusAsync(int id, UpdateShipmentStatusDto statusDto);
 
         Task DeleteAsync(int id);
     }

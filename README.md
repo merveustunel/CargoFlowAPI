@@ -316,13 +316,203 @@ Note: The port may vary depending on your `launchSettings.json` configuration. C
 
 ---
 
+## Web Frontend
+
+A clean, Bootstrap-based frontend is included in the `CargoFlow.Web` folder. Built with vanilla HTML, CSS, and JavaScript.
+
+**Features:**
+- Dashboard with real-time metrics
+- Customer management interface
+- Shipment management with status tracking
+- Public shipment tracking page
+- Responsive Bootstrap 5 design
+- No external frameworks (React, Vue, etc.)
+
+**Getting Started:**
+```bash
+cd CargoFlow.Web
+# Open index.html in a browser, or use a local server:
+python -m http.server 8000
+```
+
+API URL: `http://localhost:5041/api`
+
+For detailed frontend documentation, see [CargoFlow.Web/README.md](CargoFlow.Web/README.md).
+
+---
+
 ## Screenshots
 
-### Swagger Overview
-![Swagger Overview](docs/screenshots/swagger-overview.png)
+### 1. Dashboard
+![Dashboard](docs/screenshots/dashboard.png)
 
-### Dashboard Response
+The **Dashboard** is the main entry point providing a quick overview of key business metrics:
+- **Total Shipments:** Displays the total count of all shipments in the system
+- **Delivered Shipments:** Shows shipments successfully delivered to their destinations
+- **In Transit Shipments:** Shows shipments currently on the way
+- **Cancelled Shipments:** Shows cancelled shipments
+- **Customer Summary:** Total registered customers with quick navigation to view all customers
+- **Quick Actions:** Navigation buttons for:
+  - Adding new customers
+  - Creating new shipments
+  - Accessing the public tracking page
+
+The dashboard uses color-coded metric cards (dark blue, green, light blue, red) for visual clarity and quick scanning of system status.
+
+---
+
+### 2. Customers Management
+![Customers Management](docs/screenshots/customers.png)
+
+The **Customers** page provides full customer lifecycle management:
+- **Customer List Table:** Displays all customers with columns for:
+  - ID
+  - Full Name (First + Last Name)
+  - Email address
+  - Phone number (with +90-532- Turkish format for demo data)
+  - Account creation date
+- **Actions Column:** Each customer row has:
+  - **Edit button** (yellow) - Opens modal form to update customer details
+  - **Delete button** (red) - Removes customer from system with confirmation
+- **Add New Customer Button:** Creates a new customer with form validation for:
+  - First name (required)
+  - Last name (required)
+  - Email address (required)
+  - Phone number (required)
+
+The demo database seeds with 8 realistic customers for portfolio demonstration.
+
+---
+
+### 3. Shipments Management
+![Shipments Management](docs/screenshots/shipments.png)
+
+The **Shipments** page enables comprehensive shipment tracking and management:
+- **Shipment List Table:** Displays all shipments with columns for:
+  - ID
+  - Tracking Number (format: CF-2026-001, CF-2026-002, etc.)
+  - Origin city (Turkish cities like İstanbul, Ankara, İzmir)
+  - Destination city
+  - Weight in kilograms
+  - Current Status with color-coded badge:
+    - Created (gray)
+    - InWarehouse (orange)
+    - InTransit (light blue)
+    - Delivered (green)
+    - Cancelled (red)
+  - Creation date and time
+- **Actions Column:** Each shipment has:
+  - **Update Status button** (cyan) - Opens dedicated modal to change shipment status
+  - **Edit button** (yellow) - Updates shipment details (origin, destination, weight)
+  - **Delete button** (red) - Removes shipment with confirmation
+- **Create Shipment Button:** Opens form to create new shipments with:
+  - Tracking number (auto-generated suggestion: CF-2026-###)
+  - Origin and destination cities
+  - Weight in kilograms
+
+The demo seeds with 20 realistic shipments across Turkish city pairs with varied statuses and weights.
+
+---
+
+### 4. Public Shipment Tracking
+![Track Shipment](docs/screenshots/tracking.png)
+
+The **Track Your Shipment** page is a public-facing feature for customers to track their shipments:
+- **Search Form:** 
+  - Input field to enter tracking number (e.g., CF-2026-001)
+  - "Track Shipment" button to retrieve shipment details
+- **Shipment Details Display:**
+  - Tracking Number (prominent display)
+  - Current Status (color-coded badge)
+  - Origin city
+  - Destination city
+  - Package weight in kilograms
+  - Creation/Order date with timestamp
+- **Status Timeline Visualization:** Visual representation of shipment journey through all possible statuses
+- **"Track Another Shipment"** button to reset the form and search again
+
+This page demonstrates the public API endpoint `/api/shipments/tracking/{trackingNumber}` which requires no authentication.
+
+---
+
+### 5. Status Timeline
+![Status Timeline](docs/screenshots/timeline.png)
+
+The **Status Timeline** section shows the shipment's journey progression:
+- **Visual Timeline:** Vertical timeline showing all possible shipment statuses:
+  - Order Created
+  - In Warehouse
+  - In Transit
+  - Delivered
+  - Cancelled
+- **Status Indicators:** Each status is represented with a circular node
+- **Current Status Highlighting:** The timeline shows which statuses have been completed and which is current
+- **"Track Another Shipment"** button for easy reset
+
+This visual representation helps customers understand:
+- Where their shipment currently is in the fulfillment process
+- What stages the shipment has already completed
+- What future stages remain before delivery
+
+---
+
+## Web Frontend Features
+
+The **CargoFlow.Web** frontend demonstrates modern web development practices:
+
+✅ **Responsive Bootstrap 5 Design** - Works on mobile, tablet, and desktop
+✅ **Vanilla JavaScript (ES6+)** - No framework dependencies, lightweight and fast
+✅ **Fetch API** - Modern async HTTP requests with async/await
+✅ **Modal Forms** - Clean, reusable modal dialogs for data entry
+✅ **Form Validation** - Client-side validation before API calls
+✅ **Error Handling** - User-friendly error messages and alerts
+✅ **Loading States** - Visual feedback while fetching from API
+✅ **Status Badges** - Color-coded visual indicators for shipment statuses
+✅ **CORS Support** - Frontend-backend communication across localhost ports
+✅ **Public API Endpoints** - No authentication required for shipment tracking
+
+---
+
+### 6. Swagger API Documentation
+![Swagger API Documentation](docs/screenshots/swagger.png)
+
+The **Swagger/OpenAPI** interface provides interactive API documentation available at `http://localhost:5041/swagger`
+
+**Features Displayed:**
+- **API Title:** "CargoFlow.API v1.0" with OAS3 badge indicating OpenAPI 3.0 specification
+- **Endpoints organized by resource:**
+  - **Customers** section with 5 endpoints:
+    - `GET /api/Customers` - Retrieve all customers
+    - `POST /api/Customers` - Create new customer
+    - `GET /api/Customers/{id}` - Get specific customer
+    - `PUT /api/Customers/{id}` - Update customer (orange badge)
+    - `DELETE /api/Customers/{id}` - Delete customer (red badge)
+  - **Dashboard** section with 1 endpoint:
+    - `GET /api/Dashboard` - Retrieve dashboard metrics
+  - **Shipments** section with full CRUD operations
+
+**Color-Coded HTTP Methods:**
+- Blue badge: `GET` requests (read operations)
+- Green badge: `POST` requests (create operations)
+- Orange badge: `PUT` requests (update operations)
+- Red badge: `DELETE` requests (delete operations)
+
+**Interactive Features:**
+- Click any endpoint to expand and see request/response schemas
+- Try out endpoints directly from the browser
+- View sample payloads and responses
+- Test API without external tools like Postman
+- Download OpenAPI specification in JSON or YAML
+
+This Swagger interface serves as both documentation and a testing tool for all API endpoints, making it easy for frontend developers or API consumers to understand and interact with the CargoFlow API.
+
+---
+
+### API Response Examples
+
 ![Dashboard Response](docs/screenshots/dashboard-response.png)
+
+Sample JSON response showing dashboard metrics with demo data (20 shipments, 8 customers)
 
 ---
 

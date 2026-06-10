@@ -31,6 +31,13 @@ namespace CargoFlow.Business.Concrete
             return shipment is null ? null : MapToDto(shipment);
         }
 
+        public async Task<ShipmentTrackingDto?> GetByTrackingNumberAsync(string trackingNumber)
+        {
+            var allShipments = await _shipmentRepository.GetAllAsync();
+            var shipment = allShipments.FirstOrDefault(s => s.TrackingNumber == trackingNumber);
+            return shipment is null ? null : MapToTrackingDto(shipment);
+        }
+
         public async Task<ShipmentDto> CreateAsync(CreateShipmentDto createShipmentDto)
         {
             ValidateCreateShipment(createShipmentDto);
@@ -63,6 +70,20 @@ namespace CargoFlow.Business.Concrete
             existingShipment.Origin = updateShipmentDto.Origin.Trim();
             existingShipment.Destination = updateShipmentDto.Destination.Trim();
             existingShipment.Weight = updateShipmentDto.Weight;
+
+            await _shipmentRepository.UpdateAsync(existingShipment);
+            return MapToDto(existingShipment);
+        }
+
+        public async Task<ShipmentDto> UpdateStatusAsync(int id, UpdateShipmentStatusDto statusDto)
+        {
+            var existingShipment = await _shipmentRepository.GetByIdAsync(id);
+            if (existingShipment is null)
+            {
+                throw new KeyNotFoundException($"Shipment with id {id} was not found.");
+            }
+
+            existingShipment.Status = statusDto.Status;
 
             await _shipmentRepository.UpdateAsync(existingShipment);
             return MapToDto(existingShipment);
@@ -128,6 +149,20 @@ namespace CargoFlow.Business.Concrete
         private static ShipmentDto MapToDto(Shipment shipment)
         {
             return new ShipmentDto
+            {
+                Id = shipment.Id,
+                TrackingNumber = shipment.TrackingNumber,
+                Origin = shipment.Origin,
+                Destination = shipment.Destination,
+                Weight = shipment.Weight,
+                Status = shipment.Status,
+                CreatedDate = shipment.CreatedDate
+            };
+        }
+
+        private static ShipmentTrackingDto MapToTrackingDto(Shipment shipment)
+        {
+            return new ShipmentTrackingDto
             {
                 Id = shipment.Id,
                 TrackingNumber = shipment.TrackingNumber,

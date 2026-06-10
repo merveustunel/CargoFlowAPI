@@ -35,6 +35,18 @@ namespace CargoFlow.API.Controllers
             return Ok(shipment);
         }
 
+        [HttpGet("tracking/{trackingNumber}")]
+        public async Task<ActionResult<ShipmentTrackingDto>> GetByTrackingNumber(string trackingNumber)
+        {
+            var shipment = await _shipmentService.GetByTrackingNumberAsync(trackingNumber);
+            if (shipment is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(shipment);
+        }
+
         [HttpPost]
         public async Task<ActionResult<ShipmentDto>> Create(CreateShipmentDto createShipmentDto)
         {
@@ -48,6 +60,20 @@ namespace CargoFlow.API.Controllers
             try
             {
                 var updatedShipment = await _shipmentService.UpdateAsync(id, updateShipmentDto);
+                return Ok(updatedShipment);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpPatch("{id}/status")]
+        public async Task<ActionResult<ShipmentDto>> UpdateStatus(int id, UpdateShipmentStatusDto statusDto)
+        {
+            try
+            {
+                var updatedShipment = await _shipmentService.UpdateStatusAsync(id, statusDto);
                 return Ok(updatedShipment);
             }
             catch (KeyNotFoundException)

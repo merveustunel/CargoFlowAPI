@@ -11,157 +11,120 @@ namespace CargoFlow.DataAccess
             // Apply pending migrations
             await context.Database.MigrateAsync();
 
-            // Check if data already exists
-            if (await context.Customers.AnyAsync() || await context.Shipments.AnyAsync())
+            // Seed customers independently
+            await SeedCustomersAsync(context);
+
+            // Seed shipments independently
+            await SeedShipmentsAsync(context);
+        }
+
+        private static async Task SeedCustomersAsync(CargoFlowDbContext context)
+        {
+            var existingCustomerCount = await context.Customers.CountAsync();
+
+            // If we have at least 8 customers, don't add more
+            if (existingCustomerCount >= 8)
             {
                 return;
             }
 
-            // Seed customers
-            var customers = new[]
+            var demoCustomers = new[]
             {
-                new Customer
-                {
-                    FirstName = "John",
-                    LastName = "Smith",
-                    Email = "john.smith@example.com",
-                    PhoneNumber = "+1-555-0101",
-                    CreatedDate = DateTime.UtcNow
-                },
-                new Customer
-                {
-                    FirstName = "Sarah",
-                    LastName = "Johnson",
-                    Email = "sarah.johnson@example.com",
-                    PhoneNumber = "+1-555-0102",
-                    CreatedDate = DateTime.UtcNow
-                },
-                new Customer
-                {
-                    FirstName = "Michael",
-                    LastName = "Chen",
-                    Email = "michael.chen@example.com",
-                    PhoneNumber = "+1-555-0103",
-                    CreatedDate = DateTime.UtcNow
-                },
-                new Customer
-                {
-                    FirstName = "Emma",
-                    LastName = "Wilson",
-                    Email = "emma.wilson@example.com",
-                    PhoneNumber = "+1-555-0104",
-                    CreatedDate = DateTime.UtcNow
-                },
-                new Customer
-                {
-                    FirstName = "David",
-                    LastName = "Martinez",
-                    Email = "david.martinez@example.com",
-                    PhoneNumber = "+1-555-0105",
-                    CreatedDate = DateTime.UtcNow
-                }
+                new Customer { FirstName = "John", LastName = "Smith", Email = "john.smith@example.com", PhoneNumber = "+90-532-123-4501", CreatedDate = DateTime.UtcNow },
+                new Customer { FirstName = "Sarah", LastName = "Johnson", Email = "sarah.johnson@example.com", PhoneNumber = "+90-532-123-4502", CreatedDate = DateTime.UtcNow },
+                new Customer { FirstName = "Michael", LastName = "Chen", Email = "michael.chen@example.com", PhoneNumber = "+90-532-123-4503", CreatedDate = DateTime.UtcNow },
+                new Customer { FirstName = "Emma", LastName = "Wilson", Email = "emma.wilson@example.com", PhoneNumber = "+90-532-123-4504", CreatedDate = DateTime.UtcNow },
+                new Customer { FirstName = "David", LastName = "Martinez", Email = "david.martinez@example.com", PhoneNumber = "+90-532-123-4505", CreatedDate = DateTime.UtcNow },
+                new Customer { FirstName = "Lisa", LastName = "Anderson", Email = "lisa.anderson@example.com", PhoneNumber = "+90-532-123-4506", CreatedDate = DateTime.UtcNow },
+                new Customer { FirstName = "Robert", LastName = "Taylor", Email = "robert.taylor@example.com", PhoneNumber = "+90-532-123-4507", CreatedDate = DateTime.UtcNow },
+                new Customer { FirstName = "Jennifer", LastName = "Brown", Email = "jennifer.brown@example.com", PhoneNumber = "+90-532-123-4508", CreatedDate = DateTime.UtcNow }
             };
 
-            await context.Customers.AddRangeAsync(customers);
-            await context.SaveChangesAsync();
-
-            // Seed shipments
-            var shipments = new[]
+            // Add only the customers we need to reach at least 8
+            var customersToAdd = demoCustomers.Skip(existingCustomerCount).ToArray();
+            if (customersToAdd.Length > 0)
             {
-                new Shipment
-                {
-                    TrackingNumber = "SHP-2026-001",
-                    Origin = "New York, NY",
-                    Destination = "Los Angeles, CA",
-                    Weight = 150.5m,
-                    Status = ShipmentStatus.InTransit,
-                    CreatedDate = DateTime.UtcNow.AddDays(-5)
-                },
-                new Shipment
-                {
-                    TrackingNumber = "SHP-2026-002",
-                    Origin = "Chicago, IL",
-                    Destination = "Houston, TX",
-                    Weight = 225.0m,
-                    Status = ShipmentStatus.Delivered,
-                    CreatedDate = DateTime.UtcNow.AddDays(-10)
-                },
-                new Shipment
-                {
-                    TrackingNumber = "SHP-2026-003",
-                    Origin = "Boston, MA",
-                    Destination = "Miami, FL",
-                    Weight = 85.25m,
-                    Status = ShipmentStatus.InWarehouse,
-                    CreatedDate = DateTime.UtcNow.AddDays(-2)
-                },
-                new Shipment
-                {
-                    TrackingNumber = "SHP-2026-004",
-                    Origin = "Seattle, WA",
-                    Destination = "San Francisco, CA",
-                    Weight = 320.75m,
-                    Status = ShipmentStatus.InTransit,
-                    CreatedDate = DateTime.UtcNow.AddDays(-3)
-                },
-                new Shipment
-                {
-                    TrackingNumber = "SHP-2026-005",
-                    Origin = "Denver, CO",
-                    Destination = "Phoenix, AZ",
-                    Weight = 110.0m,
-                    Status = ShipmentStatus.Created,
-                    CreatedDate = DateTime.UtcNow
-                },
-                new Shipment
-                {
-                    TrackingNumber = "SHP-2026-006",
-                    Origin = "Atlanta, GA",
-                    Destination = "Nashville, TN",
-                    Weight = 275.50m,
-                    Status = ShipmentStatus.Delivered,
-                    CreatedDate = DateTime.UtcNow.AddDays(-15)
-                },
-                new Shipment
-                {
-                    TrackingNumber = "SHP-2026-007",
-                    Origin = "Philadelphia, PA",
-                    Destination = "Washington, DC",
-                    Weight = 95.0m,
-                    Status = ShipmentStatus.InTransit,
-                    CreatedDate = DateTime.UtcNow.AddDays(-4)
-                },
-                new Shipment
-                {
-                    TrackingNumber = "SHP-2026-008",
-                    Origin = "Dallas, TX",
-                    Destination = "Austin, TX",
-                    Weight = 160.0m,
-                    Status = ShipmentStatus.Cancelled,
-                    CreatedDate = DateTime.UtcNow.AddDays(-7)
-                },
-                new Shipment
-                {
-                    TrackingNumber = "SHP-2026-009",
-                    Origin = "Minneapolis, MN",
-                    Destination = "Milwaukee, WI",
-                    Weight = 200.25m,
-                    Status = ShipmentStatus.InWarehouse,
-                    CreatedDate = DateTime.UtcNow.AddDays(-1)
-                },
-                new Shipment
-                {
-                    TrackingNumber = "SHP-2026-010",
-                    Origin = "San Diego, CA",
-                    Destination = "Las Vegas, NV",
-                    Weight = 135.75m,
-                    Status = ShipmentStatus.Delivered,
-                    CreatedDate = DateTime.UtcNow.AddDays(-12)
-                }
+                await context.Customers.AddRangeAsync(customersToAdd);
+                await context.SaveChangesAsync();
+            }
+        }
+
+        private static async Task SeedShipmentsAsync(CargoFlowDbContext context)
+        {
+            var existingShipmentCount = await context.Shipments.CountAsync();
+            var existingTrackingNumbers = await context.Shipments.Select(s => s.TrackingNumber).ToListAsync();
+
+            // If we have at least 20 shipments, don't add more
+            if (existingShipmentCount >= 20)
+            {
+                return;
+            }
+
+            // Turkish city pairs for realistic demo data
+            var routes = new (string origin, string destination)[]
+            {
+                ("İstanbul", "Ankara"),
+                ("Ankara", "İzmir"),
+                ("İzmir", "Bursa"),
+                ("Bursa", "Kocaeli"),
+                ("Kocaeli", "İstanbul"),
+                ("İstanbul", "Antalya"),
+                ("Antalya", "Konya"),
+                ("Konya", "Gaziantep"),
+                ("Gaziantep", "Adana"),
+                ("Adana", "Mersin"),
+                ("Mersin", "İstanbul"),
+                ("İstanbul", "Trabzon"),
+                ("Ankara", "Diyarbakır"),
+                ("İzmir", "Aydın"),
+                ("Bursa", "Balıkesir"),
+                ("Kocaeli", "Sakarya"),
+                ("Antalya", "Alanya"),
+                ("Konya", "Aksaray"),
+                ("Gaziantep", "Mardin"),
+                ("Adana", "Hatay")
             };
 
-            await context.Shipments.AddRangeAsync(shipments);
-            await context.SaveChangesAsync();
+            var statuses = new[] { ShipmentStatus.Created, ShipmentStatus.InWarehouse, ShipmentStatus.InTransit, ShipmentStatus.Delivered, ShipmentStatus.Cancelled };
+            var weights = new decimal[] { 50.0m, 100.5m, 150.25m, 200.0m, 275.75m, 320.5m, 85.0m, 110.25m, 160.0m, 225.0m };
+
+            var newShipments = new List<Shipment>();
+            var trackingNumber = 1;
+
+            for (int i = existingShipmentCount; i < 20; i++)
+            {
+                // Find an unused tracking number
+                string currentTracking;
+                do
+                {
+                    currentTracking = $"CF-2026-{trackingNumber:D3}";
+                    trackingNumber++;
+                } while (existingTrackingNumbers.Contains(currentTracking));
+
+                var route = routes[i % routes.Length];
+                var status = statuses[i % statuses.Length];
+                var weight = weights[i % weights.Length];
+                var daysAgo = (i % 15) + 1;
+
+                var shipment = new Shipment
+                {
+                    TrackingNumber = currentTracking,
+                    Origin = route.origin,
+                    Destination = route.destination,
+                    Weight = weight,
+                    Status = status,
+                    CreatedDate = DateTime.UtcNow.AddDays(-daysAgo)
+                };
+
+                newShipments.Add(shipment);
+                existingTrackingNumbers.Add(currentTracking);
+            }
+
+            if (newShipments.Count > 0)
+            {
+                await context.Shipments.AddRangeAsync(newShipments);
+                await context.SaveChangesAsync();
+            }
         }
     }
 }

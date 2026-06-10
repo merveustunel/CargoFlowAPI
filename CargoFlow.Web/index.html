@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CargoFlow - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-lg">
+            <a class="navbar-brand" href="index.html">📦 CargoFlow</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="index.html">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="customers.html">Customers</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="shipments.html">Shipments</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tracking.html">Track Shipment</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <div class="container-lg">
+            <div id="alertContainer"></div>
+
+            <h1 class="mb-4">Dashboard</h1>
+
+            <!-- Loading Spinner -->
+            <div id="loadingSpinner" class="text-center my-5">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+
+            <!-- Dashboard Stats -->
+            <div id="dashboardContent" style="display: none;">
+                <div class="row mb-5">
+                    <div class="col-md-6 col-lg-3">
+                        <div class="dashboard-card total">
+                            <p>Total Shipments</p>
+                            <h3 id="totalShipments">0</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="dashboard-card delivered">
+                            <p>Delivered</p>
+                            <h3 id="deliveredShipments">0</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="dashboard-card intransit">
+                            <p>In Transit</p>
+                            <h3 id="inTransitShipments">0</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <div class="dashboard-card cancelled">
+                            <p>Cancelled</p>
+                            <h3 id="cancelledShipments">0</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customers Summary -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Customer Summary</h5>
+                            </div>
+                            <div class="card-body">
+                                <h2 id="totalCustomers">0</h2>
+                                <p class="text-muted">Total registered customers</p>
+                                <a href="customers.html" class="btn btn-primary btn-sm">View Customers</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Quick Actions</h5>
+                            </div>
+                            <div class="card-body">
+                                <a href="customers.html" class="btn btn-primary btn-sm d-block mb-2">Add New Customer</a>
+                                <a href="shipments.html" class="btn btn-secondary btn-sm d-block mb-2">Create Shipment</a>
+                                <a href="tracking.html" class="btn btn-info btn-sm d-block">Track Shipment</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 CargoFlow API. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        async function loadDashboard() {
+            try {
+                const data = await apiClient.getDashboard();
+
+                document.getElementById('totalShipments').textContent = data.totalShipments;
+                document.getElementById('deliveredShipments').textContent = data.deliveredShipments;
+                document.getElementById('inTransitShipments').textContent = data.inTransitShipments;
+                document.getElementById('cancelledShipments').textContent = data.cancelledShipments;
+                document.getElementById('totalCustomers').textContent = data.totalCustomers;
+
+                document.getElementById('loadingSpinner').style.display = 'none';
+                document.getElementById('dashboardContent').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                showAlert('Error loading dashboard. Make sure the API is running.', 'danger');
+                document.getElementById('loadingSpinner').style.display = 'none';
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', loadDashboard);
+    </script>
+</body>
+
+</html>

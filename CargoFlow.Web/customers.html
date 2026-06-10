@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CargoFlow - Customers</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-lg">
+            <a class="navbar-brand" href="index.html">📦 CargoFlow</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="customers.html">Customers</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="shipments.html">Shipments</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="tracking.html">Track Shipment</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <div class="container-lg">
+            <div id="alertContainer"></div>
+
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <h1>Customers</h1>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#customerModal">
+            + Add Customer
+          </button>
+                </div>
+            </div>
+
+            <!-- Loading Spinner -->
+            <div id="loadingSpinner" class="text-center my-5">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+
+            <!-- Customers Table -->
+            <div id="customersContent" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">All Customers</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customersTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Customer Modal -->
+    <div class="modal fade" id="customerModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="customerModalTitle">Add Customer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="customerForm">
+                        <input type="hidden" id="customerId">
+                        <div class="mb-3">
+                            <label for="firstName" class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="firstName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="lastName" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="lastName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phoneNumber" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phoneNumber" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveCustomerBtn">Save Customer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 CargoFlow API. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        let customerModal;
+        let currentEditingId = null;
+
+        async function loadCustomers() {
+            try {
+                const customers = await apiClient.getCustomers();
+                const tbody = document.getElementById('customersTableBody');
+                tbody.innerHTML = '';
+
+                customers.forEach(customer => {
+                    const row = `
+            <tr>
+              <td>${customer.id}</td>
+              <td>${customer.firstName} ${customer.lastName}</td>
+              <td>${customer.email}</td>
+              <td>${customer.phoneNumber}</td>
+              <td>${formatDate(customer.createdDate)}</td>
+              <td>
+                <button class="btn btn-sm btn-warning me-2" onclick="editCustomer(${customer.id})">Edit</button>
+                <button class="btn btn-sm btn-danger" onclick="deleteCustomer(${customer.id})">Delete</button>
+              </td>
+            </tr>
+          `;
+                    tbody.innerHTML += row;
+                });
+
+                document.getElementById('loadingSpinner').style.display = 'none';
+                document.getElementById('customersContent').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading customers:', error);
+                showAlert('Error loading customers. Make sure the API is running.', 'danger');
+                document.getElementById('loadingSpinner').style.display = 'none';
+            }
+        }
+
+        async function editCustomer(id) {
+            try {
+                const customer = await apiClient.getCustomer(id);
+                currentEditingId = id;
+
+                document.getElementById('customerModalTitle').textContent = 'Edit Customer';
+                document.getElementById('customerId').value = customer.id;
+                document.getElementById('firstName').value = customer.firstName;
+                document.getElementById('lastName').value = customer.lastName;
+                document.getElementById('email').value = customer.email;
+                document.getElementById('phoneNumber').value = customer.phoneNumber;
+
+                customerModal.show();
+            } catch (error) {
+                showAlert('Error loading customer data.', 'danger');
+            }
+        }
+
+        async function deleteCustomer(id) {
+            if (confirm('Are you sure you want to delete this customer?')) {
+                try {
+                    await apiClient.deleteCustomer(id);
+                    showAlert('Customer deleted successfully.', 'success');
+                    loadCustomers();
+                } catch (error) {
+                    showAlert('Error deleting customer.', 'danger');
+                }
+            }
+        }
+
+        document.getElementById('customerForm').addEventListener('submit', async(e) => {
+            e.preventDefault();
+
+            const data = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                email: document.getElementById('email').value,
+                phoneNumber: document.getElementById('phoneNumber').value
+            };
+
+            try {
+                if (currentEditingId) {
+                    await apiClient.updateCustomer(currentEditingId, data);
+                    showAlert('Customer updated successfully.', 'success');
+                    currentEditingId = null;
+                } else {
+                    await apiClient.createCustomer(data);
+                    showAlert('Customer created successfully.', 'success');
+                }
+
+                customerModal.hide();
+                loadCustomers();
+            } catch (error) {
+                showAlert('Error saving customer.', 'danger');
+            }
+        });
+
+        document.getElementById('saveCustomerBtn').addEventListener('click', () => {
+            document.getElementById('customerForm').dispatchEvent(new Event('submit'));
+        });
+
+        // Reset form when modal closes
+        document.getElementById('customerModal').addEventListener('hidden.bs.modal', () => {
+            document.getElementById('customerForm').reset();
+            document.getElementById('customerModalTitle').textContent = 'Add Customer';
+            currentEditingId = null;
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            customerModal = new bootstrap.Modal(document.getElementById('customerModal'));
+            loadCustomers();
+        });
+    </script>
+</body>
+
+</html>

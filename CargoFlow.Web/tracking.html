@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CargoFlow - Track Shipment</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-lg">
+            <a class="navbar-brand" href="index.html">📦 CargoFlow</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="customers.html">Customers</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="shipments.html">Shipments</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="tracking.html">Track Shipment</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <div class="container-lg">
+            <div id="alertContainer"></div>
+
+            <h1 class="mb-4">Track Your Shipment</h1>
+
+            <!-- Search Form -->
+            <div class="card mb-5">
+                <div class="card-header">
+                    <h5 class="mb-0">Enter Tracking Number</h5>
+                </div>
+                <div class="card-body">
+                    <form id="trackingForm" class="row g-3">
+                        <div class="col-md-8">
+                            <input type="text" class="form-control form-control-lg" id="trackingInput" placeholder="e.g., SHP-2026-001" required>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-primary btn-lg w-100">
+                Track Shipment
+              </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tracking Result -->
+            <div id="trackingResult" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Shipment Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h6 class="text-muted">Tracking Number</h6>
+                                <p class="h4" id="resultTrackingNumber"></p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-muted">Status</h6>
+                                <p class="h4"><span id="resultStatus" class="badge"></span></p>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h6 class="text-muted">Origin</h6>
+                                <p id="resultOrigin" class="lead"></p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-muted">Destination</h6>
+                                <p id="resultDestination" class="lead"></p>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h6 class="text-muted">Weight</h6>
+                                <p id="resultWeight" class="lead"></p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-muted">Created Date</h6>
+                                <p id="resultCreatedDate" class="lead"></p>
+                            </div>
+                        </div>
+
+                        <!-- Status Timeline -->
+                        <div class="mt-5">
+                            <h6 class="text-muted mb-3">Status Timeline</h6>
+                            <div id="statusTimeline" class="timeline">
+                                <!-- Timeline items will be added here -->
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button class="btn btn-secondary" onclick="resetTracking()">Track Another Shipment</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 CargoFlow API. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        const statuses = ['Created', 'InWarehouse', 'InTransit', 'Delivered', 'Cancelled'];
+        const statusLabels = {
+            'Created': 'Order Created',
+            'InWarehouse': 'In Warehouse',
+            'InTransit': 'In Transit',
+            'Delivered': 'Delivered',
+            'Cancelled': 'Cancelled'
+        };
+
+        document.getElementById('trackingForm').addEventListener('submit', async(e) => {
+            e.preventDefault();
+
+            const trackingNumber = document.getElementById('trackingInput').value.trim();
+
+            try {
+                const shipment = await apiClient.getShipmentByTracking(trackingNumber);
+                displayTrackingResult(shipment);
+            } catch (error) {
+                showAlert('Shipment not found. Please check the tracking number and try again.', 'danger');
+            }
+        });
+
+        function displayTrackingResult(shipment) {
+            document.getElementById('resultTrackingNumber').textContent = shipment.trackingNumber;
+
+            const statusBadge = document.getElementById('resultStatus');
+            statusBadge.textContent = shipment.status;
+            statusBadge.className = `badge ${getStatusBadgeClass(shipment.status)}`;
+
+            document.getElementById('resultOrigin').textContent = shipment.origin;
+            document.getElementById('resultDestination').textContent = shipment.destination;
+            document.getElementById('resultWeight').textContent = shipment.weight + ' kg';
+            document.getElementById('resultCreatedDate').textContent = formatDate(shipment.createdDate);
+
+            // Build timeline
+            buildStatusTimeline(shipment.status);
+
+            document.getElementById('trackingResult').style.display = 'block';
+            window.scrollTo(0, 0);
+        }
+
+        function buildStatusTimeline(currentStatus) {
+            const timeline = document.getElementById('statusTimeline');
+            timeline.innerHTML = '';
+
+            const currentStatusIndex = statuses.indexOf(currentStatus);
+
+            statuses.forEach((status, index) => {
+                const isCompleted = index <= currentStatusIndex;
+                const isCurrent = index === currentStatusIndex;
+
+                const timelineItem = document.createElement('div');
+                timelineItem.className = 'timeline-item mb-3';
+
+                let statusClass = 'text-muted';
+                let dotClass = 'bg-secondary';
+
+                if (isCompleted && status === 'Delivered') {
+                    statusClass = 'text-success';
+                    dotClass = 'bg-success';
+                } else if (isCompleted && status !== 'Cancelled') {
+                    statusClass = 'text-info';
+                    dotClass = 'bg-info';
+                } else if (currentStatus === 'Cancelled' && status === 'Cancelled') {
+                    statusClass = 'text-danger';
+                    dotClass = 'bg-danger';
+                }
+
+                const html = `
+          <div class="d-flex">
+            <div class="flex-shrink-0">
+              <div class="timeline-dot ${dotClass}" style="width: 20px; height: 20px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;">
+                ${isCompleted ? '<span style="color: white; font-weight: bold;">✓</span>' : ''}
+              </div>
+              ${index < statuses.length - 1 ? '<div style="width: 2px; height: 30px; background-color: #ddd; margin-left: 9px;"></div>' : ''}
+            </div>
+            <div class="flex-grow-1 ms-3">
+              <p class="${statusClass} ${isCurrent ? 'fw-bold' : ''}">
+                ${statusLabels[status]}
+                ${isCurrent ? '<span class="badge bg-info ms-2">Current</span>' : ''}
+              </p>
+            </div>
+          </div>
+        `;
+
+                timelineItem.innerHTML = html;
+                timeline.appendChild(timelineItem);
+            });
+        }
+
+        function resetTracking() {
+            document.getElementById('trackingForm').reset();
+            document.getElementById('trackingResult').style.display = 'none';
+            document.getElementById('trackingInput').focus();
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('trackingInput').focus();
+        });
+    </script>
+</body>
+
+</html>
