@@ -344,7 +344,8 @@ For detailed frontend documentation, see [CargoFlow.Web/README.md](CargoFlow.Web
 ## Screenshots
 
 ### 1. Dashboard
-![Dashboard](docs/screenshots/dashboard.png)
+<img width="1596" height="712" alt="image" src="https://github.com/user-attachments/assets/9712d6c8-cda0-4fa7-b8a3-fc782674c2b3" />
+
 
 The **Dashboard** is the main entry point providing a quick overview of key business metrics:
 - **Total Shipments:** Displays the total count of all shipments in the system
@@ -362,7 +363,8 @@ The dashboard uses color-coded metric cards (dark blue, green, light blue, red) 
 ---
 
 ### 2. Customers Management
-![Customers Management](docs/screenshots/customers.png)
+<img width="1421" height="710" alt="image" src="https://github.com/user-attachments/assets/871d1812-98a4-4480-8227-afa488a6b487" />
+
 
 The **Customers** page provides full customer lifecycle management:
 - **Customer List Table:** Displays all customers with columns for:
@@ -385,7 +387,8 @@ The demo database seeds with 8 realistic customers for portfolio demonstration.
 ---
 
 ### 3. Shipments Management
-![Shipments Management](docs/screenshots/shipments.png)
+
+<img width="1917" height="964" alt="image" src="https://github.com/user-attachments/assets/b3867843-f4ec-428a-a043-c18a72e17f36" />
 
 The **Shipments** page enables comprehensive shipment tracking and management:
 - **Shipment List Table:** Displays all shipments with columns for:
@@ -415,7 +418,9 @@ The demo seeds with 20 realistic shipments across Turkish city pairs with varied
 ---
 
 ### 4. Public Shipment Tracking
-![Track Shipment](docs/screenshots/tracking.png)
+
+<img width="1427" height="706" alt="image" src="https://github.com/user-attachments/assets/9dc53403-59d2-430c-9b25-1bfa7d5eaff2" />
+
 
 The **Track Your Shipment** page is a public-facing feature for customers to track their shipments:
 - **Search Form:** 
@@ -436,7 +441,8 @@ This page demonstrates the public API endpoint `/api/shipments/tracking/{trackin
 ---
 
 ### 5. Status Timeline
-![Status Timeline](docs/screenshots/timeline.png)
+<img width="1919" height="762" alt="image" src="https://github.com/user-attachments/assets/73a68b39-7d00-4192-bacb-a6a7870e74b8" />
+
 
 The **Status Timeline** section shows the shipment's journey progression:
 - **Visual Timeline:** Vertical timeline showing all possible shipment statuses:
@@ -474,7 +480,7 @@ The **CargoFlow.Web** frontend demonstrates modern web development practices:
 ---
 
 ### 6. Swagger API Documentation
-![Swagger API Documentation](docs/screenshots/swagger.png)
+<img width="1917" height="951" alt="image" src="https://github.com/user-attachments/assets/f50b29d4-7593-49d4-bfae-fc229dacf2ee" />
 
 The **Swagger/OpenAPI** interface provides interactive API documentation available at `http://localhost:5041/swagger`
 
@@ -510,7 +516,8 @@ This Swagger interface serves as both documentation and a testing tool for all A
 
 ### API Response Examples
 
-![Dashboard Response](docs/screenshots/dashboard-response.png)
+<img width="1596" height="712" alt="image" src="https://github.com/user-attachments/assets/f2fb12a8-b2f8-487f-80ee-3349a5a7c72c" />
+
 
 Sample JSON response showing dashboard metrics with demo data (20 shipments, 8 customers)
 
