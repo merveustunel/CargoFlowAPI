@@ -163,6 +163,12 @@ CargoFlowAPI/
 - Customer: required email, first/last names
 - Shipment: required tracking number, origin, destination, weight > 0
 
+✅ Web Management Panel
+- Bootstrap-based responsive UI
+- Customer management
+- Shipment management
+- Dashboard analytics
+- Public tracking page
 ---
 
 ## API Endpoints
