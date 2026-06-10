@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\CargoFlow.API.props" />
-</Project>
